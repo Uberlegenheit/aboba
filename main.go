@@ -96,9 +96,19 @@ func main() {
 		articles[i].Body = strings.ReplaceAll(articles[i].Body, "cdn.cogitize.tech", "media.cryptomannn.com")
 		articles[i].Body = strings.ReplaceAll(articles[i].Body, "cryptomannn.s3.eu-central-1.amazonaws.com", "media.cryptomannn.com")
 
+		articles[i].Image = strings.ReplaceAll(articles[i].Image, "cdn.cogitize.tech", "media.cryptomannn.com")
+		articles[i].Image = strings.ReplaceAll(articles[i].Image, "cryptomannn.s3.eu-central-1.amazonaws.com", "media.cryptomannn.com")
+
 		err = db.Table("article").
 			Where("id = ?", articles[i].ID).
 			Update("body", articles[i].Body).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = db.Table("article").
+			Where("id = ?", articles[i].ID).
+			Update("image", articles[i].Image).Error
 		if err != nil {
 			log.Fatal(err)
 		}
