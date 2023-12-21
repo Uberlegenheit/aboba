@@ -116,6 +116,7 @@ func main() {
 			log.Fatal(err)
 		}
 
+		fmt.Println(articles[i].LocalizedImage)
 		err = db.Table("article").
 			Where("id = ?", articles[i].ID).
 			Update("localizedImage", articles[i].LocalizedImage).Error
