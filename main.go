@@ -32,7 +32,7 @@ type Article struct {
 	Image             string     `gorm:"type:varchar"`
 	VideoId           string     `gorm:"type:json"`
 	UpdateLinks       string     `gorm:"type:json"`
-	LocalizedImage    string     `gorm:"type:json"`
+	LocalizedImage    string     `gorm:"column:localizedImage"`
 }
 
 type Course struct {
