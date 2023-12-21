@@ -117,11 +117,13 @@ func main() {
 		}
 
 		fmt.Println(articles[i].LocalizedImage)
-		err = db.Table("article").
-			Where("id = ?", articles[i].ID).
-			Update("localizedImage", articles[i].LocalizedImage).Error
-		if err != nil {
-			log.Fatal(err)
+		if articles[i].LocalizedImage != "" {
+			err = db.Table("article").
+				Where("id = ?", articles[i].ID).
+				Update("localizedImage", articles[i].LocalizedImage).Error
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 
