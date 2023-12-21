@@ -34,6 +34,17 @@ type Article struct {
 	LocalizedImage    string     `gorm:"type:json"`
 }
 
+type Course struct {
+	ID         uint           `gorm:"primaryKey;column:id"`
+	Title      string         `gorm:"column:title;not null"`
+	CreatedAt  time.Time      `gorm:"column:createdAt;default:now();not null"`
+	UpdatedAt  time.Time      `gorm:"column:updatedAt;default:now();not null"`
+	DeletedAt  gorm.DeletedAt `gorm:"column:deletedAt"`
+	ProductID  uint           `gorm:"column:productId;constraint:FK_a5dc2a0a8b60847ccbe401709ee;references:product"`
+	Image      string         `gorm:"column:image"`
+	Categories []string       `gorm:"column:categories;type:text[];default:'{}'::text[];not null"`
+}
+
 func makeConn() (*gorm.DB, error) {
 	s := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"), false)
 	return gorm.Open(postgres.Open(s), &gorm.Config{
@@ -47,20 +58,40 @@ func main() {
 		log.Fatal(err)
 	}
 
-	articles := make([]Article, 0)
-	err = db.Table("article").
+	//articles := make([]Article, 0)
+	//err = db.Table("article").
+	//	Select("*").
+	//	Scan(&articles).Error
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//for i := range articles {
+	//	articles[i].Body = strings.ReplaceAll(articles[i].Body, "cdn.cogitize.tech", "cryptomannn.s3.eu-central-1.amazonaws.com")
+	//
+	//	err = db.Table("article").
+	//		Where("id = ?", articles[i].ID).
+	//		Update("body", articles[i].Body).Error
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//}
+
+	courses := make([]Course, 0)
+	err = db.Table("course").
 		Select("*").
-		Scan(&articles).Error
+		Scan(&courses).Error
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for i := range articles {
-		articles[i].Body = strings.ReplaceAll(articles[i].Body, "cdn.cogitize.tech", "cryptomannn.s3.eu-central-1.amazonaws.com")
+	for i := range courses {
+		courses[i].Image = strings.ReplaceAll(courses[i].Image, "cdn.cogitize.tech", "api.cryptomannn.com")
+		courses[i].Image = strings.ReplaceAll(courses[i].Image, "cryptomannn.s3.eu-central-1.amazonaws.com", "api.cryptomannn.com")
 
 		err = db.Table("article").
-			Where("id = ?", articles[i].ID).
-			Update("body", articles[i].Body).Error
+			Where("id = ?", courses[i].ID).
+			Update("image", courses[i].Image).Error
 		if err != nil {
 			log.Fatal(err)
 		}
