@@ -4,6 +4,7 @@ import (
 	"fmt"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -45,6 +46,31 @@ type Course struct {
 	Categories string         `gorm:"column:categories"`
 }
 
+type File struct {
+	ID   uuid.UUID `gorm:"primaryKey;column:id"`
+	Path string    `gorm:"column:path;not null"`
+}
+
+type User struct {
+	ID           uint      `gorm:"primaryKey;column:id"`
+	Email        string    `gorm:"unique;column:email"`
+	Phone        string    `gorm:"column:phone"`
+	Password     string    `gorm:"column:password"`
+	Provider     string    `gorm:"default:'email';not null;column:provider"`
+	SocialID     string    `gorm:"column:socialId"`
+	Hash         string    `gorm:"column:hash"`
+	RefreshToken string    `gorm:"column:refreshToken"`
+	CreatedAt    time.Time `gorm:"default:now();not null;column:createdAt"`
+	UpdatedAt    time.Time `gorm:"default:now();not null;column:updatedAt"`
+	DeletedAt    time.Time `gorm:"column:deletedAt"`
+	RoleID       uint      `gorm:"column:roleId;foreignKey:RoleID;references:Role"`
+	StatusID     uint      `gorm:"column:statusId;foreignKey:StatusID;references:Status"`
+	LevelID      uint      `gorm:"column:levelId;foreignKey:LevelID;references:Level"`
+	Name         string    `gorm:"column:name"`
+	Username     string    `gorm:"column:username"`
+	Photo        string    `gorm:"column:photo"`
+}
+
 func makeConn() (*gorm.DB, error) {
 	s := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"), false)
 	return gorm.Open(postgres.Open(s), &gorm.Config{
@@ -53,32 +79,30 @@ func makeConn() (*gorm.DB, error) {
 }
 
 func main() {
-	a := "https://cryptomannn.s3.eu-central-1.amazonaws.com/static/media/img/course_part_mt_1.jpg"
-	a = strings.ReplaceAll(a, "cryptomannn.s3.eu-central-1.amazonaws.com", "api.cryptomannn.com")
-
 	db, err := makeConn()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	//articles := make([]Article, 0)
-	//err = db.Table("article").
-	//	Select("*").
-	//	Scan(&articles).Error
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//for i := range articles {
-	//	articles[i].Body = strings.ReplaceAll(articles[i].Body, "cdn.cogitize.tech", "cryptomannn.s3.eu-central-1.amazonaws.com")
-	//
-	//	err = db.Table("article").
-	//		Where("id = ?", articles[i].ID).
-	//		Update("body", articles[i].Body).Error
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//}
+	articles := make([]Article, 0)
+	err = db.Table("article").
+		Select("*").
+		Scan(&articles).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i := range articles {
+		articles[i].Body = strings.ReplaceAll(articles[i].Body, "cdn.cogitize.tech", "media.cryptomannn.com")
+		articles[i].Body = strings.ReplaceAll(articles[i].Body, "cryptomannn.s3.eu-central-1.amazonaws.com", "media.cryptomannn.com")
+
+		err = db.Table("article").
+			Where("id = ?", articles[i].ID).
+			Update("body", articles[i].Body).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	courses := make([]Course, 0)
 	err = db.Table("course").
@@ -89,12 +113,52 @@ func main() {
 	}
 
 	for i := range courses {
-		courses[i].Image = strings.ReplaceAll(courses[i].Image, "cdn.cogitize.tech", "api.cryptomannn.com")
-		courses[i].Image = strings.ReplaceAll(courses[i].Image, "cryptomannn.s3.eu-central-1.amazonaws.com", "api.cryptomannn.com")
+		courses[i].Image = strings.ReplaceAll(courses[i].Image, "cdn.cogitize.tech", "media.cryptomannn.com")
+		courses[i].Image = strings.ReplaceAll(courses[i].Image, "cryptomannn.s3.eu-central-1.amazonaws.com", "media.cryptomannn.com")
 
 		err = db.Table("course").
 			Where("id = ?", courses[i].ID).
 			Update("image", courses[i].Image).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	files := make([]File, 0)
+	err = db.Table("file").
+		Select("*").
+		Scan(&files).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i := range files {
+		files[i].Path = strings.ReplaceAll(files[i].Path, "cdn.cogitize.tech", "media.cryptomannn.com")
+		files[i].Path = strings.ReplaceAll(files[i].Path, "cryptomannn.s3.eu-central-1.amazonaws.com", "media.cryptomannn.com")
+
+		err = db.Table("file").
+			Where("id = ?", files[i].ID).
+			Update("path", files[i].Path).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	users := make([]User, 0)
+	err = db.Table("user").
+		Select("*").
+		Scan(&users).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i := range users {
+		users[i].Photo = strings.ReplaceAll(users[i].Photo, "cdn.cogitize.tech", "media.cryptomannn.com")
+		users[i].Photo = strings.ReplaceAll(users[i].Photo, "cryptomannn.s3.eu-central-1.amazonaws.com", "media.cryptomannn.com")
+
+		err = db.Table("user").
+			Where("id = ?", users[i].ID).
+			Update("photo", users[i].Photo).Error
 		if err != nil {
 			log.Fatal(err)
 		}
