@@ -53,6 +53,9 @@ func makeConn() (*gorm.DB, error) {
 }
 
 func main() {
+	a := "https://cryptomannn.s3.eu-central-1.amazonaws.com/static/media/img/course_part_mt_1.jpg"
+	a = strings.ReplaceAll(a, "cryptomannn.s3.eu-central-1.amazonaws.com", "api.cryptomannn.com")
+
 	db, err := makeConn()
 	if err != nil {
 		log.Fatal(err)
@@ -89,7 +92,7 @@ func main() {
 		courses[i].Image = strings.ReplaceAll(courses[i].Image, "cdn.cogitize.tech", "api.cryptomannn.com")
 		courses[i].Image = strings.ReplaceAll(courses[i].Image, "cryptomannn.s3.eu-central-1.amazonaws.com", "api.cryptomannn.com")
 
-		err = db.Table("article").
+		err = db.Table("course").
 			Where("id = ?", courses[i].ID).
 			Update("image", courses[i].Image).Error
 		if err != nil {
