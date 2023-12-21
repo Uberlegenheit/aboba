@@ -42,7 +42,7 @@ type Course struct {
 	DeletedAt  gorm.DeletedAt `gorm:"column:deletedAt"`
 	ProductID  uint           `gorm:"column:productId;constraint:FK_a5dc2a0a8b60847ccbe401709ee;references:product"`
 	Image      string         `gorm:"column:image"`
-	Categories []string       `gorm:"column:categories;type:text[];default:'{}'::text[];not null"`
+	Categories string         `gorm:"column:categories"`
 }
 
 func makeConn() (*gorm.DB, error) {
