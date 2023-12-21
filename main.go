@@ -99,6 +99,9 @@ func main() {
 		articles[i].Image = strings.ReplaceAll(articles[i].Image, "cdn.cogitize.tech", "media.cryptomannn.com")
 		articles[i].Image = strings.ReplaceAll(articles[i].Image, "cryptomannn.s3.eu-central-1.amazonaws.com", "media.cryptomannn.com")
 
+		articles[i].LocalizedImage = strings.ReplaceAll(articles[i].LocalizedImage, "cdn.cogitize.tech", "media.cryptomannn.com")
+		articles[i].LocalizedImage = strings.ReplaceAll(articles[i].LocalizedImage, "cryptomannn.s3.eu-central-1.amazonaws.com", "media.cryptomannn.com")
+
 		err = db.Table("article").
 			Where("id = ?", articles[i].ID).
 			Update("body", articles[i].Body).Error
@@ -109,6 +112,13 @@ func main() {
 		err = db.Table("article").
 			Where("id = ?", articles[i].ID).
 			Update("image", articles[i].Image).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = db.Table("article").
+			Where("id = ?", articles[i].ID).
+			Update("localizedImage", articles[i].LocalizedImage).Error
 		if err != nil {
 			log.Fatal(err)
 		}
